@@ -31,11 +31,11 @@ class Settings(BaseSettings):
     MAX_FILE_SIZE_MB: int = 20
 
     # ── AI / LLM API Keys ────────────────────────────────────────
-    ANTHROPIC_API_KEY: str = ""
-    OPENAI_API_KEY: str = ""
+    ANTHROPIC_API_KEY: str = "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"
+    OPENAI_API_KEY: str = "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"
 
     # ── Google Maps API ──────────────────────────────────────────
-    GOOGLE_MAPS_API_KEY: str = ""
+    GOOGLE_MAPS_API_KEY: str = "AIzaSyAUSQYqqFUBFGzIQ8lddo3LTsj5VENL19A"
 
     # ── Pydantic Configuration ───────────────────────────────────
     class Config:
