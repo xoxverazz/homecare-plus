@@ -5,13 +5,14 @@ uvicorn[standard]==0.27.1
 # ── Database ───────────────────────────────────────────────────
 sqlalchemy==2.0.27
 alembic==1.13.1
-pymysql==1.1.0
-cryptography==42.0.2
-aiosqlite==0.20.0
+psycopg2-binary==2.9.9
+greenlet==3.0.3
 
 # ── Authentication & Security ──────────────────────────────────
 python-jose[cryptography]==3.3.0
-passlib[bcrypt_sha256]==1.7.4
+passlib[bcrypt]==1.7.4
+bcrypt==4.1.2
+cryptography==42.0.2
 
 # ── HTTP / Files ───────────────────────────────────────────────
 python-multipart==0.0.9
@@ -41,6 +42,7 @@ tqdm==4.66.2
 
 # ── Performance / JSON ─────────────────────────────────────────
 orjson==3.9.15
+ujson==5.9.0
 
 # ── Utilities ──────────────────────────────────────────────────
 python-slugify==8.0.4
@@ -48,3 +50,6 @@ slowapi==0.1.9
 python-dateutil==2.8.2
 tenacity==8.2.3
 loguru==0.7.2
+
+# ── Production Server Tools ────────────────────────────────────
+gunicorn==21.2.0
