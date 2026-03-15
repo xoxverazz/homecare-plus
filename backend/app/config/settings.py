@@ -8,23 +8,11 @@ class Settings(BaseSettings):
     APP_ENV: str = "development"
     DEBUG: bool = True
 
-    # ── Database Settings (MySQL) ────────────────────────────────
-    DB_HOST: str = "localhost"
-    DB_PORT: int = 3306
-    DB_USER: str = "root"
-    DB_PASSWORD: str = ""
-    DB_NAME: str = "homecare_plus"
-
-    @property
-    def DATABASE_URL(self) -> str:
-        """
-        Always use MySQL database connection.
-        Prevents accidental fallback to SQLite.
-        """
-        return (
-            f"mysql+pymysql://{self.DB_USER}:{self.DB_PASSWORD}"
-            f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
-        )
+    # ── Database Settings (PostgreSQL - Render) ──────────────────
+    DATABASE_URL: str = (
+        "postgresql+psycopg2://homecare:MaLr0xKC9v6h4EmmVXRqK5JTVLkWd6Ku"
+        "@dpg-d6rc0nsr85hc73fabb50-a.oregon-postgres.render.com:5432/homecare_db_g2eo"
+    )
 
     # ── JWT Authentication ───────────────────────────────────────
     SECRET_KEY: str = "homecare-super-secret-key-change-in-production-min-32chars"
@@ -42,7 +30,7 @@ class Settings(BaseSettings):
     UPLOAD_DIR: str = "uploads"
     MAX_FILE_SIZE_MB: int = 20
 
-    # ── AI / LLM API Keys (Optional) ─────────────────────────────
+    # ── AI / LLM API Keys ────────────────────────────────────────
     ANTHROPIC_API_KEY: str = ""
     OPENAI_API_KEY: str = ""
 
