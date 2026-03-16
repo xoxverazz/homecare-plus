@@ -1,5 +1,5 @@
-from pydantic_settings import BaseSettings
-from typing import List
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from typing import List, Optional
 
 
 class Settings(BaseSettings):
@@ -13,6 +13,13 @@ class Settings(BaseSettings):
         "postgresql+psycopg2://homecare:MaLr0xKC9v6h4EmmVXRqK5JTVLkWd6Ku"
         "@dpg-d6rc0nsr85hc73fabb50-a.oregon-postgres.render.com:5432/homecare_db_g2eo"
     )
+
+    # Optional DB environment variables (Render sometimes injects these)
+    DB_HOST: Optional[str] = None
+    DB_PORT: Optional[str] = None
+    DB_USER: Optional[str] = None
+    DB_PASSWORD: Optional[str] = None
+    DB_NAME: Optional[str] = None
 
     # ── JWT Authentication ───────────────────────────────────────
     SECRET_KEY: str = "homecare-super-secret-key-change-in-production-min-32chars"
@@ -31,17 +38,19 @@ class Settings(BaseSettings):
     MAX_FILE_SIZE_MB: int = 20
 
     # ── AI / LLM API Keys ────────────────────────────────────────
-    ANTHROPIC_API_KEY: str = "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"
-    OPENAI_API_KEY: str = "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"
+    ANTHROPIC_API_KEY: Optional[str] = None
+    OPENAI_API_KEY: Optional[str] = None
 
     # ── Google Maps API ──────────────────────────────────────────
-    GOOGLE_MAPS_API_KEY: str = "AIzaSyAUSQYqqFUBFGzIQ8lddo3LTsj5VENL19A"
+    GOOGLE_MAPS_API_KEY: Optional[str] = None
 
-    # ── Pydantic Configuration ───────────────────────────────────
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        case_sensitive = True
+    # ── Pydantic Settings Configuration ──────────────────────────
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=True,
+        extra="ignore"  # Ignore unknown environment variables (fixes Render crash)
+    )
 
 
 # Global settings instance
