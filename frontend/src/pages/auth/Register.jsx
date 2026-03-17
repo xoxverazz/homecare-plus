@@ -22,7 +22,7 @@ export default function Register() {
   const { register, isLoading } = useAuthStore()
   const navigate = useNavigate()
 
-  // ───────────────── VALIDATION ─────────────────
+  // ───────────── VALIDATION ─────────────
   const validate = () => {
     const e = {}
 
@@ -41,20 +41,20 @@ export default function Register() {
     return Object.keys(e).length === 0
   }
 
-  // ───────────────── SUBMIT ─────────────────
+  // ───────────── SUBMIT ─────────────
   const handleSubmit = async (e) => {
     e.preventDefault()
     setApiError('')
 
     if (!validate()) return
 
-    // 🔥 Transform data for backend
+    // ✅ FIXED DATA FORMAT
     const data = {
       full_name: `${form.firstName} ${form.lastName}`,
       email: form.email,
-      phone_number: form.phone,
-      date_of_birth: form.dateOfBirth,
-      gender: form.gender,
+      phone_number: String(form.phone),
+      date_of_birth: new Date(form.dateOfBirth).toISOString().split('T')[0],
+      gender: form.gender.charAt(0).toUpperCase() + form.gender.slice(1),
       password: form.password,
     }
 
@@ -68,11 +68,21 @@ export default function Register() {
       }
     } catch (err) {
       console.error('Registration error:', err)
-      setApiError(err.response?.data?.detail || 'Something went wrong')
+
+      // 🔥 Show exact backend error
+      if (err.response?.data?.detail) {
+        if (Array.isArray(err.response.data.detail)) {
+          setApiError(err.response.data.detail[0].msg)
+        } else {
+          setApiError(err.response.data.detail)
+        }
+      } else {
+        setApiError('Something went wrong')
+      }
     }
   }
 
-  // ───────────────── INPUT FIELD COMPONENT ─────────────────
+  // ───────────── INPUT FIELD ─────────────
   const field = (name, label, type = 'text', icon, placeholder) => (
     <div>
       <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
@@ -82,8 +92,7 @@ export default function Register() {
         {icon &&
           React.createElement(icon, {
             size: 16,
-            className:
-              'absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400',
+            className: 'absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400',
           })}
         <input
           type={type}
@@ -128,9 +137,7 @@ export default function Register() {
             </label>
             <select
               value={form.gender}
-              onChange={(e) =>
-                setForm({ ...form, gender: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, gender: e.target.value })}
               className="input-field"
             >
               <option value="">Select</option>
@@ -147,106 +154,54 @@ export default function Register() {
 
         {/* PASSWORD */}
         <div>
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-            Password
-          </label>
+          <label className="block text-sm font-medium mb-1.5">Password</label>
           <div className="relative">
             <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
             <input
               type={showPassword ? 'text' : 'password'}
               value={form.password}
-              onChange={(e) =>
-                setForm({ ...form, password: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
               className={`input-field pl-10 pr-10 ${
                 errors.password ? 'border-red-400' : ''
               }`}
-              placeholder="Minimum 8 characters"
             />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400"
-            >
+            <button type="button" onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400">
               {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
           </div>
-          {errors.password && (
-            <p className="text-xs text-red-500 mt-1">{errors.password}</p>
-          )}
         </div>
 
         {/* CONFIRM PASSWORD */}
         <div>
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-            Confirm Password
-          </label>
-          <div className="relative">
-            <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-            <input
-              type="password"
-              value={form.confirmPassword}
-              onChange={(e) =>
-                setForm({ ...form, confirmPassword: e.target.value })
-              }
-              className={`input-field pl-10 ${
-                errors.confirmPassword ? 'border-red-400' : ''
-              }`}
-              placeholder="Confirm password"
-            />
-          </div>
-          {errors.confirmPassword && (
-            <p className="text-xs text-red-500 mt-1">
-              {errors.confirmPassword}
-            </p>
-          )}
+          <label className="block text-sm font-medium mb-1.5">Confirm Password</label>
+          <input
+            type="password"
+            value={form.confirmPassword}
+            onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
+            className="input-field"
+          />
         </div>
 
-        {/* API ERROR MESSAGE */}
+        {/* API ERROR */}
         {apiError && (
           <div className="bg-red-100 text-red-600 text-sm p-2 rounded">
             {apiError}
           </div>
         )}
 
-        {/* TERMS */}
-        <label className="flex items-start gap-2 cursor-pointer">
-          <input
-            type="checkbox"
-            required
-            className="mt-0.5 rounded border-slate-300 text-blue-600"
-          />
-          <span className="text-xs text-slate-500 dark:text-slate-400">
-            I agree to the{' '}
-            <span className="text-blue-600">Terms of Service</span> and{' '}
-            <span className="text-blue-600">Privacy Policy</span>.
-          </span>
-        </label>
-
-        {/* SUBMIT */}
         <button
           type="submit"
           disabled={isLoading}
-          className="btn-primary w-full justify-center py-3.5"
+          className="btn-primary w-full py-3"
         >
-          {isLoading ? (
-            'Creating Account...'
-          ) : (
-            <span className="flex items-center gap-2">
-              Create Account <ArrowRight size={16} />
-            </span>
-          )}
+          {isLoading ? 'Creating...' : 'Create Account'}
         </button>
       </form>
 
-      <p className="text-center mt-6 text-sm text-slate-500 dark:text-slate-400">
+      <p className="text-center mt-6 text-sm">
         Already have an account?{' '}
-        <Link
-          to="/login"
-          className="font-semibold text-blue-600 hover:text-blue-700"
-        >
-          Sign in
-        </Link>
+        <Link to="/login" className="text-blue-600">Sign in</Link>
       </p>
     </div>
   )
