@@ -3,15 +3,15 @@ import axios from "axios"
 /* ─────────────────────────────────────────────────────────────
    API BASE URL
    Priority:
-   1. VITE_API_URL from .env
-   2. Render backend
-   3. Local backend (development)
+   1. VITE_API_URL (must include /api)
+   2. Render backend fallback (with /api)
+   3. Local backend
 ───────────────────────────────────────────────────────────── */
 
 const API_BASE_URL =
   import.meta.env.VITE_API_URL ||
-  "https://homecare-plus-back.onrender.com" ||
-  "http://localhost:8000"
+  "https://homecare-plus-back.onrender.com/api" || // ✅ FIXED
+  "http://localhost:8000/api" // ✅ FIXED
 
 /* ─────────────────────────────────────────────────────────────
    AXIOS INSTANCE
@@ -27,7 +27,7 @@ const api = axios.create({
 
 /* ─────────────────────────────────────────────────────────────
    REQUEST INTERCEPTOR
-   Automatically attach JWT token
+   Attach JWT token safely
 ───────────────────────────────────────────────────────────── */
 
 api.interceptors.request.use(
@@ -54,7 +54,7 @@ api.interceptors.request.use(
 
 /* ─────────────────────────────────────────────────────────────
    RESPONSE INTERCEPTOR
-   Handle auth errors globally
+   Better error handling
 ───────────────────────────────────────────────────────────── */
 
 api.interceptors.response.use(
@@ -62,6 +62,7 @@ api.interceptors.response.use(
   (error) => {
     const status = error?.response?.status
 
+    // 🔐 Unauthorized
     if (status === 401) {
       localStorage.removeItem("homecare-auth")
 
@@ -70,8 +71,19 @@ api.interceptors.response.use(
       }
     }
 
+    // ❌ Not Found (wrong endpoint)
+    if (status === 404) {
+      console.error("API route not found:", error.config?.url)
+    }
+
+    // 💥 Server error
     if (status === 500) {
       console.error("Server error:", error.response?.data)
+    }
+
+    // 🌐 Network / CORS / server down
+    if (!error.response) {
+      console.error("Network error or backend down:", error.message)
     }
 
     return Promise.reject(error)
